@@ -67,7 +67,12 @@ const modifyCharacter = (req, res, character) => {
         ...modifiedCharacter,
       };
       res.writeHead(200, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify({message: 'Character modified'}));
+      res.end(
+        JSON.stringify({
+          message: 'Character modified',
+          modifiedCharacter: characters[characterIndex],
+        }),
+      );
     } else {
       res.writeHead(404, {'Content-Type': 'application/json'});
       res.end(JSON.stringify({message: 'Character not found'}));
