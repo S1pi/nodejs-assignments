@@ -1,42 +1,35 @@
-import http from 'http';
-import {
-  getcharacters,
-  postCharacter,
-  deleteCharacter,
-  modifyCharacter,
-} from './items.js';
+import express from 'express';
+import mediaRouter from './routes/media-router.js';
 const hostname = '127.0.0.1';
 const port = 3000;
+const app = express();
 
-// Create a server object and bind a callback function
-// to all request events
-const server = http.createServer((req, res) => {
-  const {url, method} = req;
+app.set('view engine', 'pug');
+app.set('views', 'src/views');
 
-  const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
-  const urlParts = parsedUrl.pathname.split('/');
-  // console.log(parts);
-  const character = urlParts[2];
-  const dw = urlParts[1];
-  // console.log(character);
-  console.log(dw);
+app.use(express.json());
 
-  console.log('url:', url, 'method:', method);
-  if (url === '/characters' && method === 'GET') {
-    getcharacters(res);
-  } else if (url === '/character' && method === 'POST') {
-    postCharacter(req, res);
-  } else if (urlParts[1] === 'delete' && method === 'DELETE') {
-    deleteCharacter(res, character);
-  } else if (urlParts[1] === 'modify' && method === 'PUT') {
-    modifyCharacter(req, res, character);
-  } else {
-    // Generic not found response
-    res.writeHead(404, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({error: '404', message: 'not found'}));
-  }
+// Home page (client) as static html, css, js
+app.use(express.static('public'));
+// Uploaded media files
+app.use('/uploads', express.static('uploads'));
+
+// Api documentation page rendered with pug
+app.get('/api', (req, res) => {
+  res.render('index', {
+    title: 'Media sharing REST API Documentation',
+    version: process.env.npm_package_version,
+    // exampleData: mediaItems,
+  });
 });
 
-server.listen(port, hostname, () => {
+// Media resource endpoints
+app.use('/api/media', mediaRouter);
+
+// User resource endpoints
+// TODO: implement user resource
+//app.use('/api/users', userRouter);
+
+app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
