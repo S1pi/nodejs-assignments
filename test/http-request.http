@@ -1,0 +1,28 @@
+# Example api requests
+
+## Media resource
+
+### Get all media
+GET http://localhost:3000/api/media
+
+### Get a media item based on id
+GET http://localhost:3000/api/media/9632?format=plain
+
+### 2nd version
+GET http://localhost:3000/api/media/9632
+### test not found
+GET http://localhost:3000/api/media/963
+
+### Create an item
+POST http://localhost:3000/api/media
+Content-Type: application/json
+
+{
+    "filename": "uusi.jpg",
+    "filesize": 887574,
+    "title": "Uusi kuva",
+    "description": "testikuvaus",
+    "user_id": 1606,
+    "media_type": "image/jpeg",
+    "created_at": "2023-10-16T19:00:09.000Z"
+}

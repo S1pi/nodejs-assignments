@@ -1,83 +1,34 @@
 // Dummy mock data
-const characters = [
-  {
-    name: 'Super-Turtle',
-    inventory: ['Diamond Sword', 'Healing Potion', 'Turtle Shield'],
-    health: 200,
-    damage: 1500,
-  },
-  {
-    name: 'Maaorava',
-    inventory: ['Iron Sword', 'Healing Potion', 'Nahka Shield'],
-    health: 20,
-    damage: 10,
-  },
+const items = [
+  {id: 1, name: 'Item1'},
+  {id: 2, name: 'Item2'},
+  {id: 5, name: 'Item5'},
 ];
 
-const getcharacters = (res) => {
-  res.writeHead(200, {'Content-Type': 'application/json'});
-  res.end(JSON.stringify(characters));
+const getItems = (res) => {
+  res.json(items);
 };
 
-const postCharacter = (req, res) => {
-  let body = [];
-  req
-    .on('data', (chunk) => {
-      body.push(chunk);
-    })
-    .on('end', () => {
-      body = Buffer.concat(body).toString();
-      // at this point, `body` has the entire request body stored in it as a string
-      console.log('req body:', body);
-      const item = JSON.parse(body);
-      characters.push(item);
-      res.writeHead(200, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify({message: 'Item added'}));
-    });
+const postItem = (req, res) => {
+  console.log('post req body', req.body);
+  const newItem = req.body;
+  newItem.id = items[items.length - 1].id + 1;
+  items.push(newItem);
+  res.status(201).json({message: 'Item added', id: newItem.id});
 };
 
-const deleteCharacter = (res, character) => {
-  const characterIndex = characters.findIndex(
-    (char) => char.name === character,
-  );
-  if (characterIndex !== -1) {
-    characters.splice(characterIndex, 1);
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({message: 'Character Deleted'}));
+const getItemById = (req, res) => {
+  const id = parseInt(req.params.id);
+  const item = items.find((item) => item.id === id);
+  if (item) {
+    if (req.query.format === 'plain') {
+      res.send(item.name);
+    } else {
+      res.json(item);
+    }
   } else {
-    res.writeHead(404, {'Content-Type': 'application/json'});
-    res.end(JSON.stringify({message: 'Character not found'}));
+    res.status(404).json({message: 'Item not found'});
   }
 };
 
-const modifyCharacter = (req, res, character) => {
-  let body = [];
-  req.on('data', (chunk) => {
-    body.push(chunk);
-  });
-  req.on('end', () => {
-    body = Buffer.concat(body).toString();
-    const modifiedCharacter = JSON.parse(body);
-    const characterIndex = characters.findIndex(
-      (char) => char.name === character,
-    );
-    if (characterIndex !== -1) {
-      characters[characterIndex] = {
-        ...characters[characterIndex],
-        ...modifiedCharacter,
-      };
-      res.writeHead(200, {'Content-Type': 'application/json'});
-      res.end(
-        JSON.stringify({
-          message: 'Character modified',
-          modifiedCharacter: characters[characterIndex],
-        }),
-      );
-    } else {
-      res.writeHead(404, {'Content-Type': 'application/json'});
-      res.end(JSON.stringify({message: 'Character not found'}));
-    }
-  });
-};
-
-export {getcharacters, postCharacter, deleteCharacter, modifyCharacter};
+export {getItems, postItem, getItemById};
