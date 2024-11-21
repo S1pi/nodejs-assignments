@@ -1,5 +1,19 @@
 import express from 'express';
-import {getItemById, getItems, mediaItems, postItem} from './media.js';
+import {
+  deleteMedia,
+  getItemById,
+  getItems,
+  mediaItems,
+  modifyMediaItem,
+  postItem,
+} from './media.js';
+import {
+  createUser,
+  getUser,
+  modifyUser,
+  deleteUser,
+  getUsers,
+} from './users.js';
 const hostname = '127.0.0.1';
 const port = 3000;
 const app = express();
@@ -28,18 +42,53 @@ app.get('/api/media', (req, res) => {
   getItems(res);
 });
 
+// Get media by id
 app.get('/api/media/:id', (req, res) => {
   //console.log('req.params', req.params);
   //console.log('query params', req.query);
   getItemById(req, res);
 });
 
+// Add new item
 app.post('/api/media', (req, res) => {
   postItem(req, res);
 });
+
+// Modify existing mediaitem
 app.put('/api/media/:id', (req, res) => {
-  // TODO: implement this endpoint
-  res.status(501).json({message: 'Under construction'});
+  modifyMediaItem(req, res);
+});
+
+// Delete mediaitem
+app.delete('/api/media/:id', (req, res) => {
+  deleteMedia(req, res);
+});
+
+// Get all users
+app.get('/api/user', (req, res) => {
+  getUsers(res);
+});
+
+// Get user by id
+app.get('/api/user/:id', (req, res) => {
+  getUser(req, res);
+});
+
+// Add user
+app.post('/api/user', (req, res) => {
+  // Fetch user
+  createUser(req, res);
+  // res.status(501).json({message: 'Under construction'});
+});
+
+// Modify user
+app.put('/api/user/:id', (req, res) => {
+  modifyUser(req, res);
+});
+
+// Delete user
+app.delete('/api/user/:id', (req, res) => {
+  deleteUser(req, res);
 });
 
 app.listen(port, hostname, () => {

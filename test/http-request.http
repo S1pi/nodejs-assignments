@@ -18,11 +18,58 @@ POST http://localhost:3000/api/media
 Content-Type: application/json
 
 {
-    "filename": "uusi.jpg",
+    "filename": "jim.png",
     "filesize": 887574,
-    "title": "Uusi kuva",
+    "title": "Jim",
     "description": "testikuvaus",
-    "user_id": 1606,
+    "user_id": 1604,
     "media_type": "image/jpeg",
     "created_at": "2023-10-16T19:00:09.000Z"
 }
+
+
+### Modify media item by id
+PUT  http://localhost:3000/api/media/9590
+Content-Type: application/json
+
+{
+  "title": "Basement modified",
+  "description": "Some new description"
+}
+
+
+### Delete media by id
+DELETE http://localhost:3000/api/media/9590
+
+
+### Get all users
+GET http://localhost:3000/api/user
+
+### Get user by id
+GET http://localhost:3000/api/user/6969
+
+### Add user
+POST http://localhost:3000/api/user
+Content-Type: application/json
+
+{
+	"user_id": 6969,
+	"username": "Jim69",
+	"password": "********",
+	"email": "Jim69@69mail.com",
+	"user_level_id": 69,
+	"created_at": "NOW"
+}
+
+### Modify existing user by id
+PUT http://localhost:3000/api/user/6969
+Content-Type: application/json
+
+{
+	"username": "JimOnParas",
+	"email": "miikaonparas@jim.com",
+	"password": "jim69miika"
+}
+
+### Delete user
+DELETE http://localhost:3000/api/user/6969

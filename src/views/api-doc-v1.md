@@ -69,8 +69,8 @@ Response:
 GET /api/media/:id
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
+| Parameter | Type  | Description                            |
+| :-------- | :---- | :------------------------------------- |
 | `id`      | `int` | **Required** id of media item to fetch |
 
 Request example:
@@ -137,6 +137,12 @@ content-type: application/json
 DELETE /api/media/:id
 ```
 
+Request example:
+
+```http
+DELETE /api/media/123
+```
+
 ## Users `/api/user`
 
 ### Get all users
@@ -182,10 +188,48 @@ Response:
 GET /api/user/:id
 ```
 
+| Parameter | Type  | Description                            |
+| :-------- | :---- | :------------------------------------- |
+| `id`      | `int` | **Required** id of media item to fetch |
+
+Request example:
+
+```http
+GET /api/user/260
+```
+
+Response example:
+
+```json
+{
+  "user_id": 260,
+  "username": "VCHar",
+  "password": "********",
+  "email": "vchar@example.com",
+  "user_level_id": 1,
+  "created_at": "2020-09-12T06:56:41.000Z"
+},
+```
+
 ### Add a user
+
+Request example:
 
 ```http
 POST /api/user
+```
+
+```
+content-type: application/json
+
+{
+  "user_id": 3052,
+  "username": "Homeboy",
+  "password": "********",
+  "email": "yea@example.com",
+  "user_level_id": 1,
+  "created_at": "2021-12-11T06:00:41.000Z"
+}
 ```
 
 ### Modify a user
@@ -194,8 +238,26 @@ POST /api/user
 PUT /api/user/:id
 ```
 
+Request example:
+
+```http
+PUT /api/media/260
+content-type: application/json
+
+{
+  "username": "YesBoy",
+  "email": "home@example.com",
+}
+```
+
 ### Delete a user
 
 ```http
 DELETE /api/user/:id
+```
+
+Request example:
+
+```http
+DELETE /api/user/6969
 ```
