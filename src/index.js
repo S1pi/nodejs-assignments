@@ -24,12 +24,12 @@ app.set('views', 'src/views');
 app.use(express.json());
 
 // Home page (client) as static html, css, js
-app.use(express.static('public'));
+// app.use(express.static('public'));
 // Uploaded media files
 app.use('/media', express.static('media'));
 
 // Api documentation page rendered with pug
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
   res.render('index', {
     title: 'Media sharing REST API Documentation',
     version: process.env.npm_package_version,
