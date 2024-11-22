@@ -1,6 +1,5 @@
 import promisePool from '../utils/database.js';
 
-
 /**
  * Fetch all media items from the database
  * TODO: limit the number of items returned based on query parameter?
@@ -52,7 +51,7 @@ const addMediaItem = async (newItem) => {
   ];
   try {
     const result = await promisePool.query(sql, params);
-    // console.log('addMediaItem', result);
+    // console.log('addMediaItem', result, newItem);
     return result[0].insertId;
   } catch (error) {
     console.error('addMediaItem', error.message);
@@ -62,9 +61,9 @@ const addMediaItem = async (newItem) => {
 
 /**
  * Update a media item in the database
- * @param {number} id 
- * @param {object} updatedItem 
- * @returns {Promise<number>} number of affected rows 
+ * @param {number} id
+ * @param {object} updatedItem
+ * @returns {Promise<number>} number of affected rows
  */
 const updateMediaItem = async (id, updatedItem) => {
   const sql = `UPDATE MediaItems SET title = ?, description = ? WHERE media_id = ?`;
