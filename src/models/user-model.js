@@ -28,8 +28,9 @@ const fetchUsers = async () => {
 // Create new user to database
 // Returns new users id
 const createUser = async (newUser) => {
-  const sql = `INSERT INTO Users (username, password, email, user_level_id, created_at) 
-    VALUES (?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO Users 
+                (username, password, email, user_level_id) 
+                VALUES (?, ?, ?, ?)`;
   const params = [
     newUser.username,
     newUser.password,
@@ -43,7 +44,7 @@ const createUser = async (newUser) => {
     return result[0].insertId;
   } catch (err) {
     console.error('createUser', err.message);
-    throw new Error('Database error: ' + err.message);
+    throw err;
   }
 };
 
