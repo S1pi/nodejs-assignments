@@ -24,7 +24,7 @@ const fetchMediaItemById = async (id) => {
   try {
     const sql = 'SELECT * FROM MediaItems WHERE media_id = ?';
     const [rows] = await promisePool.query(sql, [id]);
-    console.log('fetchMediaItemById', rows);
+    // console.log('fetchMediaItemById', rows);
     return rows[0];
   } catch (e) {
     console.error('fetchMediaItemById', e.message);
@@ -78,4 +78,30 @@ const updateMediaItem = async (id, updatedItem) => {
   }
 };
 
-export {fetchMediaItems, fetchMediaItemById, addMediaItem, updateMediaItem};
+const deleteMediaItem = async (id) => {
+  const sql = 'DELETE FROM MediaItems WHERE media_id = ?';
+  const params = [id];
+  const mediaItem = await fetchMediaItemById(id);
+  console.log(mediaItem);
+
+  if (!mediaItem) {
+    console.log('Meni');
+    return {status: 404, message: 'Media Item not found', mediaId: id};
+  } else {
+    const [rows] = await promisePool.query(sql, params);
+    return {
+      status: 200,
+      message: `Media item: ${mediaItem.filename} deleted succesfully`,
+      result: rows,
+      filename: mediaItem.filename,
+    };
+  }
+};
+
+export {
+  fetchMediaItems,
+  fetchMediaItemById,
+  addMediaItem,
+  updateMediaItem,
+  deleteMediaItem,
+};

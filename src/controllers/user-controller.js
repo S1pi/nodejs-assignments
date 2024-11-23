@@ -1,4 +1,11 @@
-import {fetchUsers, createUser, fetchUserName} from '../models/user-model.js';
+import {
+  fetchUsers,
+  createUser,
+  fetchUserName,
+  fetchUserById,
+  changeUserData,
+  deleteUser,
+} from '../models/user-model.js';
 
 // Cheks if username is taken or not
 // Returns true or false
@@ -46,4 +53,52 @@ const postUser = async (req, res) => {
   }
 };
 
-export {getUsers, postUser};
+const getUserById = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const user = await fetchUserById(id);
+    if (user.status === 404) {
+      res.status(404).json(user);
+    } else {
+      res.status(200).json(user);
+    }
+  } catch (err) {
+    console.error('getUserById', err.message);
+    res.status(503).json({message: 'DB error', error: 503});
+  }
+};
+
+const putUser = async (req, res) => {
+  const id = req.params.id;
+  const newData = req.body;
+  try {
+    const user = await changeUserData(id, newData);
+    // console.log(user.result.info);
+    res.status(200).json({
+      message: 'User updated succesfully',
+      updatedUser: user.updatedUser,
+      info: user.result.info,
+    });
+  } catch (err) {
+    console.error('putUser', err.message);
+    res.status(503).json({message: 'DB error', error: 503});
+  }
+};
+
+const DeleteUser = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const result = await deleteUser(id);
+    console.log(result);
+    if (result.affectedRows > 0) {
+      res.status(200).json({message: 'User deleted succesfully'});
+    } else {
+      res.status(404).json({message: `User id: ${id} not found in database`});
+    }
+  } catch (err) {
+    console.error('DeleteUser', err.message);
+    res.status(503).json({message: 'DB error'});
+  }
+};
+
+export {getUsers, postUser, getUserById, putUser, DeleteUser};

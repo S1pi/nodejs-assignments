@@ -48,4 +48,57 @@ const createUser = async (newUser) => {
   }
 };
 
-export {fetchUsers, createUser, fetchUserName};
+const fetchUserById = async (id) => {
+  const sql = 'SELECT * FROM Users WHERE user_id = ?';
+  const params = [id];
+  try {
+    const [rows] = await promisePool.query(sql, params);
+    // console.log(rows);
+    if (rows.length === 0) {
+      console.log('User not found');
+      return {status: 404, message: 'User not found', userId: id};
+    }
+    return rows[0];
+  } catch (err) {
+    console.error('fetchUserById', err.message);
+    throw new Error('Database error' + err.message);
+  }
+};
+
+const changeUserData = async (id, updatedData) => {
+  const fields = Object.keys(updatedData)
+    .map((field) => `${field} = ?`)
+    .join(',');
+  const values = Object.values(updatedData);
+  const sql = `UPDATE Users SET ${fields} WHERE user_id = ?`;
+  const params = [...values, id];
+  try {
+    const [rows] = await promisePool.query(sql, params);
+    const updatedUser = await fetchUserById(id);
+    return {updatedUser: updatedUser, result: rows};
+  } catch (err) {
+    console.error('changeUserData', err.message);
+    throw new Error('Database error' + err.message);
+  }
+};
+
+const deleteUser = async (id) => {
+  const sql = 'DELETE FROM Users WHERE user_id = ?';
+  const params = [id];
+  try {
+    const [rows] = await promisePool.query(sql, params);
+    return rows;
+  } catch (err) {
+    console.error('deleteUser', err.message);
+    throw new Error('Database error', err.message);
+  }
+};
+
+export {
+  fetchUsers,
+  createUser,
+  fetchUserName,
+  fetchUserById,
+  changeUserData,
+  deleteUser,
+};

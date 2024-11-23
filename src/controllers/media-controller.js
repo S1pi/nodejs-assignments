@@ -1,8 +1,10 @@
+import fs from 'fs';
 import {
   fetchMediaItems,
   addMediaItem,
   fetchMediaItemById,
   updateMediaItem,
+  deleteMediaItem,
 } from '../models/media-model.js';
 
 const getItems = async (req, res) => {
@@ -96,4 +98,30 @@ const putItem = async (req, res) => {
   }
 };
 
-export {getItems, getItemById, postItem, putItem};
+const deleteMedia = async (req, res) => {
+  const result = await deleteMediaItem(req.params.id);
+  // console.log(result.result);
+  // Luodaan polku mistä tiedosto poistetaan
+  const filePath = './uploads/' + result.filename;
+  // console.log(filePath);
+
+  // Voisi parantaa vielä logiikkaa että haetaan tiedosto tietokannasta
+  // ja sen perusteella ensin poistetaan tiedostoista ja vasta senjälkeen tietokannasta´
+
+  // Varmistetaan että tiedosto löytyy
+  if (fs.existsSync(filePath)) {
+    // Poistetaan tiedosto
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({message: 'Error deleting mediafile', error: err});
+      }
+    });
+  }
+  res
+    .status(result.status)
+    .json({message: result.message, mediaId: result.mediaId});
+};
+
+export {getItems, getItemById, postItem, putItem, deleteMedia};
