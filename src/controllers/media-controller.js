@@ -64,7 +64,7 @@ const postItem = async (req, res) => {
     res.status(201).json({message: 'Item added', id: id});
   } catch (error) {
     return res
-      .status(400)
+      .status(503)
       .json({message: 'Something went wrong: ' + error.message});
   }
 };

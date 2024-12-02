@@ -19,7 +19,7 @@ const usernameAvailable = async (username) => {
 // Get users from user-model and give them as response
 const getUsers = async (req, res) => {
   try {
-    res.json(await fetchUsers());
+    res.status(200).json(await fetchUsers());
   } catch (err) {
     console.error('getUsers', err.message);
     res.status(503).json({error: 503, message: 'DB error'});
