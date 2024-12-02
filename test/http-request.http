@@ -13,6 +13,7 @@ GET http://localhost:3000/api/media/96399
 ### Create an item
 POST http://localhost:3000/api/media
 Content-Type: multipart/form-data; boundary=----Boundary
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJ1c2VybmFtZSI6IkRvZ2dlZFBsYWd1ZTYiLCJlbWFpbCI6ImhlaGhlaEBnbWFpbC5maSIsInVzZXJfbGV2ZWxfaWQiOjIsImlhdCI6MTczMzE1OTQ3NCwiZXhwIjoxNzMzMjQ1ODc0fQ.i1xqcpwLZR8GONgh6vTgBQt9EomKih-x_-YsUiovI70
 
 ------Boundary
 Content-Disposition: form-data; name="title"

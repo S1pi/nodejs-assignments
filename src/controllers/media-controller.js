@@ -50,8 +50,8 @@ const postItem = async (req, res) => {
   console.log('post req body', req.body);
   console.log('post req file', req.file);
   const newMediaItem = {
-    // user id is hardcoded for now
-    user_id: 1,
+    // User added from token added by auth middleware
+    user_id: req.user.user_id,
     title,
     description,
     filename: req.file.filename,
@@ -84,10 +84,17 @@ const putItem = async (req, res) => {
     description,
   };
   try {
-    const itemsEdited = await updateMediaItem(req.params.id, newDetails);
+    const itemsEdited = await updateMediaItem(
+      req.params.id,
+      req.user.user_id,
+      newDetails,
+    );
     // if no items were edited (id was not found in DB), return 404
+    // 403 if no permission to edit
     if (itemsEdited === 0) {
-      return res.status(404).json({message: 'Item not found'});
+      return res
+        .status(404)
+        .json({message: 'Item not found or no permission to edit'});
     } else if (itemsEdited === 1) {
       return res.status(200).json({message: 'Item updated', id: req.params.id});
     }
@@ -99,7 +106,7 @@ const putItem = async (req, res) => {
 };
 
 const deleteMedia = async (req, res) => {
-  const result = await deleteMediaItem(req.params.id);
+  const result = await deleteMediaItem(req.params.id, req.user.user_id);
   // console.log(result.result);
   // Luodaan polku mistä tiedosto poistetaan
   const filePath = './uploads/' + result.filename;

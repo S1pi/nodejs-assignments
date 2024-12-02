@@ -69,7 +69,26 @@ const getUserById = async (req, res) => {
 };
 
 const putUser = async (req, res) => {
-  const id = req.params.id;
+  // Takes own user id from authorization
+  const id = req.user.user_id;
+  const newData = req.body;
+  try {
+    const user = await changeUserData(id, newData);
+    // Updates userdata on database but not to JWT token so need to implement something for that
+    res.status(200).json({
+      message: 'User updated succesfully',
+      updatedUser: user.updatedUser,
+      info: user.result.info,
+    });
+  } catch (err) {
+    console.error('putUser', err.message);
+    res.status(503).json({message: 'DB error', error: 503});
+  }
+};
+
+// Takes user id from params version
+const putUserParams = async (req, res) => {
+  const id = req.params.user_id;
   const newData = req.body;
   try {
     const user = await changeUserData(id, newData);
@@ -101,4 +120,4 @@ const DeleteUser = async (req, res) => {
   }
 };
 
-export {getUsers, postUser, getUserById, putUser, DeleteUser};
+export {getUsers, postUser, getUserById, putUser, putUserParams, DeleteUser};

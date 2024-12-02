@@ -65,9 +65,9 @@ const addMediaItem = async (newItem) => {
  * @param {object} updatedItem
  * @returns {Promise<number>} number of affected rows
  */
-const updateMediaItem = async (id, updatedItem) => {
-  const sql = `UPDATE MediaItems SET title = ?, description = ? WHERE media_id = ?`;
-  const params = [updatedItem.title, updatedItem.description, id];
+const updateMediaItem = async (id, userID, updatedItem) => {
+  const sql = `UPDATE MediaItems SET title = ?, description = ? WHERE media_id = ? AND user_id = ?`;
+  const params = [updatedItem.title, updatedItem.description, id, userID];
   try {
     const result = await promisePool.query(sql, params);
     console.log('updateMediaItem', result);
@@ -78,9 +78,9 @@ const updateMediaItem = async (id, updatedItem) => {
   }
 };
 
-const deleteMediaItem = async (id) => {
-  const sql = 'DELETE FROM MediaItems WHERE media_id = ?';
-  const params = [id];
+const deleteMediaItem = async (id, userID) => {
+  const sql = 'DELETE FROM MediaItems WHERE media_id = ? AND user_id = ?';
+  const params = [id, userID];
   const mediaItem = await fetchMediaItemById(id);
   console.log(mediaItem);
 
@@ -89,12 +89,21 @@ const deleteMediaItem = async (id) => {
     return {status: 404, message: 'Media Item not found', mediaId: id};
   } else {
     const [rows] = await promisePool.query(sql, params);
-    return {
-      status: 200,
-      message: `Media item: ${mediaItem.filename} deleted succesfully`,
-      result: rows,
-      filename: mediaItem.filename,
-    };
+    if (rows.affectedRows > 0) {
+      return {
+        status: 200,
+        message: `Media item: ${mediaItem.filename} deleted succesfully`,
+        result: rows,
+        filename: mediaItem.filename,
+      };
+    } else {
+      return {
+        status: 403,
+        message: `Not authorization to delete this item`,
+        result: rows,
+        filename: mediaItem.filename,
+      };
+    }
   }
 };
 

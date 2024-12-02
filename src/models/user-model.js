@@ -94,6 +94,18 @@ const deleteUser = async (id) => {
   }
 };
 
+const selectUserByUsernameAndPassword = async (user) => {
+  try {
+    const sql =
+      'SELECT user_id, username, email, user_level_id FROM Users WHERE username = ? AND password = ?';
+    const params = [user.username, user.password];
+    const [rows] = await promisePool.execute(sql, params);
+    return rows[0];
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 export {
   fetchUsers,
   createUser,
@@ -101,4 +113,5 @@ export {
   fetchUserById,
   changeUserData,
   deleteUser,
+  selectUserByUsernameAndPassword,
 };

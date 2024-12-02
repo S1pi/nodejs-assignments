@@ -7,6 +7,7 @@ import {
   postItem,
   putItem,
 } from '../controllers/media-controller.js';
+import {authenticateToken} from '../middlewares/authentication.js';
 
 // Luodaan storagen sijainti sekä määritetään käyttämään omaa filenimeä
 const storage = multer.diskStorage({
@@ -27,9 +28,16 @@ const mediaRouter = express.Router();
 
 // Index.js määrittelee routterin käyttämään jo /api/media
 // Joten allaoleva polku on --> /api/media/ (juuri)
-mediaRouter.route('/').get(getItems).post(upload.single('file'), postItem);
+mediaRouter
+  .route('/')
+  .get(getItems)
+  .post(authenticateToken, upload.single('file'), postItem);
 
 // Route: /api/media/:id
-mediaRouter.route('/:id').get(getItemById).put(putItem).delete(deleteMedia);
+mediaRouter
+  .route('/:id')
+  .get(getItemById)
+  .put(authenticateToken, putItem)
+  .delete(authenticateToken, deleteMedia);
 
 export default mediaRouter;
