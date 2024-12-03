@@ -25,8 +25,13 @@ const fetchUsers = async () => {
   }
 };
 
-// Create new user to database
-// Returns new users id
+/**
+ * Creates a new user in the database
+ *
+ * @param {object} newUser data
+ * @returns {number} - id of the inserted use in db
+ */
+
 const createUser = async (newUser) => {
   const sql = `INSERT INTO Users 
                 (username, password, email, user_level_id) 
@@ -35,8 +40,6 @@ const createUser = async (newUser) => {
   const params = [newUser.username, newUser.password, newUser.email, 2];
   try {
     const result = await promisePool.query(sql, params);
-    // console.log('addUser', result, newUser);
-    // console.log(typeof result[0].insertId);
     return result[0].insertId;
   } catch (err) {
     console.error('createUser', err.message);
