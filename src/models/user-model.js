@@ -31,12 +31,8 @@ const createUser = async (newUser) => {
   const sql = `INSERT INTO Users 
                 (username, password, email, user_level_id) 
                 VALUES (?, ?, ?, ?)`;
-  const params = [
-    newUser.username,
-    newUser.password,
-    newUser.email,
-    newUser.user_level_id,
-  ];
+  // Hardcoded userlevel
+  const params = [newUser.username, newUser.password, newUser.email, 2];
   try {
     const result = await promisePool.query(sql, params);
     // console.log('addUser', result, newUser);

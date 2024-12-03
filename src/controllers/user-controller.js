@@ -26,7 +26,18 @@ const getUsers = async (req, res) => {
   }
 };
 
-const postUser = async (req, res) => {
+// eslint-disable-next-line no-unused-vars
+const postUser = async (req, res, next) => {
+  console.log('Tuli postUseriin');
+  // const errors = validationResult(req);
+
+  // check if any validation errors
+  // if (!errors.isEmpty()) {
+  //   const error = new Error('Invalid or missing fields');
+  //   error.status = 400;
+  //   return next(error);
+  // }
+
   const newUser = req.body;
   const username = req.body.username;
   if (!username || !req.body.password) {
@@ -52,6 +63,43 @@ const postUser = async (req, res) => {
     return res.status(400).json({message: 'Username is taken'});
   }
 };
+
+// // eslint-disable-next-line no-unused-vars
+// const postUser = async (req, res, next) => {
+//   console.log('Tuli postUseriin');
+//   const errors = validationResult(req);
+
+//   // check if any validation errors
+//   if (!errors.isEmpty()) {
+//     const error = new Error("Invalid or missing fields")
+//     error.status = 400
+
+//   }
+//   const newUser = req.body;
+//   const username = req.body.username;
+//   if (!username || !req.body.password) {
+//     return res.status(400).json({message: 'Username and Password is required'});
+//   }
+//   // If username is available calls user-model to create it on database
+//   if (await usernameAvailable(username)) {
+//     try {
+//       const user = await createUser(newUser);
+//       res
+//         .status(201)
+//         .json({message: `User: ${username} created succesfully`, id: user});
+//       // res.status(200).json({message: 'Username: ' + username + ' available'});
+//     } catch (err) {
+//       // Käsitellään errori jos sähköposti on jo käytössä ja annetaan se eteenpäin käyttäjälle
+//       if (err.code === 'ER_DUP_ENTRY') {
+//         return res.status(400).json({error: 'Email is already taken'});
+//       }
+//       console.error('postUser', err.message);
+//       res.status(503).json({error: 503, message: 'DB error'});
+//     }
+//   } else {
+//     return res.status(400).json({message: 'Username is taken'});
+//   }
+// };
 
 const getUserById = async (req, res) => {
   const id = req.params.id;

@@ -1,4 +1,5 @@
 import express from 'express';
+import {body} from 'express-validator';
 import {
   DeleteUser,
   getUserById,
@@ -8,6 +9,7 @@ import {
   putUserParams,
 } from '../controllers/user-controller.js';
 import {authenticateToken} from '../middlewares/authentication.js';
+import {validationErrorHandler} from '../middlewares/error-handler.js';
 
 const userRouter = express.Router();
 
@@ -15,7 +17,13 @@ const userRouter = express.Router();
 userRouter
   .route('/')
   .get(getUsers)
-  .post(postUser)
+  .post(
+    body('email').trim().isEmail(),
+    body('username').trim().isLength({min: 3, max: 20}).isAlphanumeric(),
+    body('password').trim().isLength({min: 8}),
+    validationErrorHandler,
+    postUser,
+  )
   .put(authenticateToken, putUser);
 
 // Route: /api/user/:id

@@ -3,6 +3,7 @@ import mediaRouter from './routes/media-router.js';
 import userRouter from './routes/user-router.js';
 import commentsRouter from './routes/comments-router.js';
 import authRouter from './routes/auth-router.js';
+import {errorHandler, notFoundHandler} from './middlewares/error-handler.js';
 const hostname = '127.0.0.1';
 const port = 3000;
 const app = express();
@@ -29,6 +30,9 @@ app.use('/api/user', userRouter);
 app.use('/api/comments', commentsRouter);
 
 app.use('/api/auth', authRouter);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
