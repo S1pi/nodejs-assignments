@@ -43,10 +43,10 @@ const fetchCommentsByUser = async (id) => {
   }
 };
 
-const deleteOneComment = async (id) => {
-  const sql = `DELETE FROM Comments WHERE comment_id = ?`;
+const deleteOneComment = async (commentId, userId) => {
+  const sql = `DELETE FROM Comments WHERE comment_id = ? AND user_id = ?`;
   try {
-    const [result] = await promisePool.query(sql, [id]);
+    const [result] = await promisePool.query(sql, [commentId, userId]);
     return result.affectedRows;
   } catch (err) {
     console.error('DB Error: ', err.message);
