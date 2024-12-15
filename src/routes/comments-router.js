@@ -6,12 +6,14 @@ import {
   getCommentsByUser,
   postComments,
 } from '../controllers/comments-controller.js';
+import {authenticateToken} from '../middlewares/authentication.js';
 
 const commentsRouter = express.Router();
 
 // Route: /api/comments
-commentsRouter.route('/').post(postComments);
-commentsRouter.route('/:id').delete(deleteCommentsByid);
+commentsRouter.route('/').post(authenticateToken, postComments);
+// Can delete comments only if comment belongs to user
+commentsRouter.route('/:id').delete(authenticateToken, deleteCommentsByid);
 commentsRouter
   .route('/media/:id')
   .get(getCommentsByMedia)

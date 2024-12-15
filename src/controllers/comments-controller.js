@@ -7,7 +7,9 @@ import {
 } from '../models/comments-model.js';
 // Post comments for media
 const postComments = async (req, res) => {
-  const {mediaId, userId, commentText} = req.body;
+  const {mediaId, commentText} = req.body;
+  // userId is taken from token
+  const userId = req.user.user_id;
   const newComment = {mediaId, userId, commentText};
   if (!mediaId || !userId || !commentText) {
     return res.status(400).json({
@@ -82,12 +84,13 @@ const getCommentsByUser = async (req, res) => {
 // Delete any comments
 const deleteCommentsByid = async (req, res) => {
   const id = req.params.id;
+  const userId = req.user.user_id;
   try {
-    const affectedRows = await deleteOneComment(id);
+    const affectedRows = await deleteOneComment(id, userId);
     if (affectedRows === 0) {
       res.status(404).json({
         status: 404,
-        message: `Comment not found by comment_id`,
+        message: `Comment not found or you don't have permission to delete`,
         commentId: id,
       });
     } else {
