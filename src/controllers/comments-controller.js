@@ -1,3 +1,4 @@
+import {customError} from '../middlewares/error-handler.js';
 import {
   addComments,
   deleteAllComments,
@@ -6,20 +7,21 @@ import {
   fetchCommentsByUser,
 } from '../models/comments-model.js';
 // Post comments for media
-const postComments = async (req, res) => {
+const postComments = async (req, res, next) => {
   const {mediaId, commentText} = req.body;
   // userId is taken from token
   const userId = req.user.user_id;
-  const newComment = {mediaId, userId, commentText};
+
   if (!mediaId || !userId || !commentText) {
-    return res.status(400).json({
-      status: 400,
-      message: "mediaId, userId, commentText can't be null or empty",
-    });
+    throw customError(
+      "mediaId, userId and commentText can't be null or empty",
+      400,
+    );
   }
+
+  const newComment = {mediaId, userId, commentText};
   try {
     const commentID = await addComments(newComment);
-    console.log(commentID);
     res.status(201).json({
       message: 'New comment created',
       status: 201,
@@ -27,10 +29,7 @@ const postComments = async (req, res) => {
     });
   } catch (err) {
     console.error('postComments ', err.message);
-    return res.status(503).json({
-      message: 'Error occured adding comment: ' + err.message,
-      status: 503,
-    });
+    next(err);
   }
 };
 

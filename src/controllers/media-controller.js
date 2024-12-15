@@ -6,29 +6,28 @@ import {
   updateMediaItem,
   deleteMediaItem,
 } from '../models/media-model.js';
+import {customError} from '../middlewares/error-handler.js';
 
-const getItems = async (req, res) => {
+const getItems = async (req, res, next) => {
   try {
     res.json(await fetchMediaItems());
   } catch (e) {
-    console.error('getItems', e.message);
-    res.status(503).json({error: 503, message: 'DB error'});
+    next(customError('Something went wrong: ' + e.message, 503));
   }
 };
 
-const getItemById = async (req, res) => {
+const getItemById = async (req, res, next) => {
   const id = parseInt(req.params.id);
   console.log('getItemById', id);
   try {
     const item = await fetchMediaItemById(id);
-    if (item) {
-      res.json(item);
-    } else {
-      res.status(404).json({message: 'Item not found'});
+    if (!item) {
+      return next(customError('Item not found', 404));
     }
+    res.json(item);
   } catch (error) {
     console.error('getItemById', error.message);
-    res.status(503).json({error: 503, message: error.message});
+    next(customError(error.message, 503));
   }
 };
 
@@ -38,14 +37,12 @@ const getItemById = async (req, res) => {
  * @param {object} res HTTP response object
  * @returns {object} response object
  */
-const postItem = async (req, res) => {
+const postItem = async (req, res, next) => {
   // destructure title and description property values from req.body
   const {title, description} = req.body;
   // quick and dirty validation example, better input validatation is added later
   if (!title || !description || !req.file) {
-    return res
-      .status(400)
-      .json({message: 'Title, description and file required'});
+    return next(customError('Title, description and file are required', 400));
   }
   console.log('post req body', req.body);
   console.log('post req file', req.file);
@@ -63,9 +60,7 @@ const postItem = async (req, res) => {
     const id = await addMediaItem(newMediaItem);
     res.status(201).json({message: 'Item added', id: id});
   } catch (error) {
-    return res
-      .status(503)
-      .json({message: 'Something went wrong: ' + error.message});
+    next(customError('Something went wrong: ' + error.message, 503));
   }
 };
 
@@ -76,7 +71,7 @@ const postItem = async (req, res) => {
  * @returns {object} response object
  */
 
-const putItem = async (req, res) => {
+const putItem = async (req, res, next) => {
   // destructure title and description property values from req.body
   const {title, description} = req.body;
   console.log('put req body', req.body);
@@ -93,43 +88,47 @@ const putItem = async (req, res) => {
     // if no items were edited (id was not found in DB), return 404
     // 403 if no permission to edit
     if (itemsEdited === 0) {
-      return res
-        .status(404)
-        .json({message: 'Item not found or no permission to edit'});
-    } else if (itemsEdited === 1) {
-      return res.status(200).json({message: 'Item updated', id: req.params.id});
+      return next(customError('Item not found or no permission to edit', 404));
     }
+    res.status(200).json({message: 'Item updated', id: req.params.id});
   } catch (error) {
-    return res
-      .status(500)
-      .json({message: 'Something went wrong: ' + error.message});
+    next(customError('Something went wrong: ' + error.message, 503));
   }
 };
 
-const deleteMedia = async (req, res) => {
-  const result = await deleteMediaItem(req.params.id, req.user.user_id);
-  // console.log(result.result);
-  // Luodaan polku mistä tiedosto poistetaan
-  const filePath = './uploads/' + result.filename;
-  // console.log(filePath);
+const deleteMedia = async (req, res, next) => {
+  try {
+    const result = await deleteMediaItem(req.params.id, req.user.user_id);
 
-  // Voisi parantaa vielä logiikkaa että haetaan tiedosto tietokannasta
-  // ja sen perusteella ensin poistetaan tiedostoista ja vasta senjälkeen tietokannasta´
+    if (!result) {
+      return next(
+        customError('Item not found or no permission to delete', 404),
+      );
+    }
 
-  // Varmistetaan että tiedosto löytyy
-  if (fs.existsSync(filePath)) {
-    // Poistetaan tiedosto
-    fs.unlink(filePath, (err) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({message: 'Error deleting mediafile', error: err});
-      }
-    });
+    // console.log(result.result);
+    // Luodaan polku mistä tiedosto poistetaan
+    const filePath = './uploads/' + result.filename;
+    // console.log(filePath);
+
+    // Voisi parantaa vielä logiikkaa että haetaan tiedosto tietokannasta
+    // ja sen perusteella ensin poistetaan tiedostoista ja vasta senjälkeen tietokannasta´
+
+    // Varmistetaan että tiedosto löytyy
+    if (fs.existsSync(filePath)) {
+      // Poistetaan tiedosto
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          return next(customError('File not found', 404));
+        }
+      });
+    }
+    res
+      .status(result.status)
+      .json({message: result.message, mediaId: result.mediaId});
+  } catch (error) {
+    next(customError('Something went wrong: ' + error.message, 500));
   }
-  res
-    .status(result.status)
-    .json({message: result.message, mediaId: result.mediaId});
 };
 
 export {getItems, getItemById, postItem, putItem, deleteMedia};

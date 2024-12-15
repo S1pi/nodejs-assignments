@@ -19,10 +19,11 @@ app.use(express.static('public'));
 app.use('/media', express.static('media'));
 app.use('/uploads', express.static('uploads'));
 
-app.put('/api/media/:id', (req, res) => {
-  // TODO: implement this endpoint
-  res.status(501).json({message: 'Under construction'});
-});
+// app.put('/api/media/:id', (req, res) => {
+//   // TODO: implement this endpoint
+//   res.status(501).json({message: 'Under construction'});
+// });
+
 app.use('/api/media', mediaRouter);
 // User resource endpoints
 app.use('/api/user', userRouter);

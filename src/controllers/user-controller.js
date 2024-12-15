@@ -1,3 +1,4 @@
+import {customError} from '../middlewares/error-handler.js';
 import {
   fetchUsers,
   createUser,
@@ -17,91 +18,44 @@ const usernameAvailable = async (username) => {
 };
 
 // Get users from user-model and give them as response
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     res.status(200).json(await fetchUsers());
   } catch (err) {
-    console.error('getUsers', err.message);
-    res.status(503).json({error: 503, message: 'DB error'});
+    next(
+      customError('Database error: ' + err.message, 503, [
+        {message: err.message},
+      ]),
+    );
   }
 };
 
 // eslint-disable-next-line no-unused-vars
 const postUser = async (req, res, next) => {
   console.log('Tuli postUseriin');
-  // const errors = validationResult(req);
-
-  // check if any validation errors
-  // if (!errors.isEmpty()) {
-  //   const error = new Error('Invalid or missing fields');
-  //   error.status = 400;
-  //   return next(error);
-  // }
 
   const newUser = req.body;
   const username = req.body.username;
-  if (!username || !req.body.password) {
-    return res.status(400).json({message: 'Username and Password is required'});
-  }
+
   // If username is available calls user-model to create it on database
-  if (await usernameAvailable(username)) {
-    try {
-      const user = await createUser(newUser);
-      res
-        .status(201)
-        .json({message: `User: ${username} created succesfully`, id: user});
-      // res.status(200).json({message: 'Username: ' + username + ' available'});
-    } catch (err) {
-      // Käsitellään errori jos sähköposti on jo käytössä ja annetaan se eteenpäin käyttäjälle
-      if (err.code === 'ER_DUP_ENTRY') {
-        return res.status(400).json({error: 'Email is already taken'});
-      }
-      console.error('postUser', err.message);
-      res.status(503).json({error: 503, message: 'DB error'});
+  try {
+    if (!(await usernameAvailable(username))) {
+      return next(customError('Username is taken', 400));
     }
-  } else {
-    return res.status(400).json({message: 'Username is taken'});
+
+    const user = await createUser(newUser);
+    res
+      .status(201)
+      .json({message: `User: ${username} created successfully`, id: user});
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY') {
+      return next(customError('Email is already taken', 400));
+    }
+    next(customError('Database error', 503, [{message: err.message}]));
   }
 };
 
-// // eslint-disable-next-line no-unused-vars
-// const postUser = async (req, res, next) => {
-//   console.log('Tuli postUseriin');
-//   const errors = validationResult(req);
-
-//   // check if any validation errors
-//   if (!errors.isEmpty()) {
-//     const error = new Error("Invalid or missing fields")
-//     error.status = 400
-
-//   }
-//   const newUser = req.body;
-//   const username = req.body.username;
-//   if (!username || !req.body.password) {
-//     return res.status(400).json({message: 'Username and Password is required'});
-//   }
-//   // If username is available calls user-model to create it on database
-//   if (await usernameAvailable(username)) {
-//     try {
-//       const user = await createUser(newUser);
-//       res
-//         .status(201)
-//         .json({message: `User: ${username} created succesfully`, id: user});
-//       // res.status(200).json({message: 'Username: ' + username + ' available'});
-//     } catch (err) {
-//       // Käsitellään errori jos sähköposti on jo käytössä ja annetaan se eteenpäin käyttäjälle
-//       if (err.code === 'ER_DUP_ENTRY') {
-//         return res.status(400).json({error: 'Email is already taken'});
-//       }
-//       console.error('postUser', err.message);
-//       res.status(503).json({error: 503, message: 'DB error'});
-//     }
-//   } else {
-//     return res.status(400).json({message: 'Username is taken'});
-//   }
-// };
-
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   const id = req.params.id;
   try {
     const user = await fetchUserById(id);
@@ -111,12 +65,15 @@ const getUserById = async (req, res) => {
       res.status(200).json(user);
     }
   } catch (err) {
-    console.error('getUserById', err.message);
-    res.status(503).json({message: 'DB error', error: 503});
+    next(
+      customError('Database error: ' + err.message, 503, [
+        {message: err.message},
+      ]),
+    );
   }
 };
 
-const putUser = async (req, res) => {
+const putUser = async (req, res, next) => {
   // Takes own user id from authorization
   const id = req.user.user_id;
   const newData = req.body;
@@ -130,7 +87,7 @@ const putUser = async (req, res) => {
     });
   } catch (err) {
     console.error('putUser', err.message);
-    res.status(503).json({message: 'DB error', error: 503});
+    next(customError('Database error', 503, [{message: err.message}]));
   }
 };
 
@@ -156,15 +113,12 @@ const DeleteUser = async (req, res) => {
   const id = req.params.id;
   try {
     const result = await deleteUser(id);
-    console.log(result);
-    if (result.affectedRows > 0) {
-      res.status(200).json({message: 'User deleted succesfully'});
-    } else {
-      res.status(404).json({message: `User id: ${id} not found in database`});
+    if (result.affectedRows === 0) {
+      return next(customError(`User with ID ${id} not found`, 404));
     }
+    res.status(200).json({message: 'User deleted successfully'});
   } catch (err) {
-    console.error('DeleteUser', err.message);
-    res.status(503).json({message: 'DB error'});
+    next(customError('Database error', 503, [{message: err.message}]));
   }
 };
 
